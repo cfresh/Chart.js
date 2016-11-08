@@ -6,7 +6,7 @@ module.exports = function(Chart) {
 	var noop = helpers.noop;
 
 	Chart.defaults.global.legend = {
-
+		alignment: 'center',
 		display: true,
 		position: 'top',
 		fullWidth: true, // marks that this box should take the full width of the canvas (pushing down other boxes)
@@ -375,19 +375,22 @@ module.exports = function(Chart) {
 
 				// Horizontal
 				var isHorizontal = me.isHorizontal();
-				if (isHorizontal) {
-					cursor = {
-						x: me.left + ((legendWidth - lineWidths[0]) / 2),
-						y: me.top + labelOpts.padding,
-						line: 0
-					};
-				} else {
-					cursor = {
-						x: me.left + labelOpts.padding,
-						y: me.top + labelOpts.padding,
-						line: 0
-					};
+
+				var getX = function(line) {
+					switch(opts.alignment) {
+						case 'center' : return me.left + ((legendWidth - lineWidths[line]) / 2);
+						case 'right' : return me.left + (legendWidth - lineWidths[line]);
+						case 'left' :
+						default: return me.left + labelOpts.padding;
+					}
 				}
+
+				cursor = {
+					x: getX(0),
+					y: me.top + labelOpts.padding,
+					line: 0
+				};
+
 
 				var itemHeight = fontSize + labelOpts.padding;
 				helpers.each(me.legendItems, function(legendItem, i) {
@@ -400,7 +403,7 @@ module.exports = function(Chart) {
 						if (x + width >= legendWidth) {
 							y = cursor.y += itemHeight;
 							cursor.line++;
-							x = cursor.x = me.left + ((legendWidth - lineWidths[cursor.line]) / 2);
+							x = cursor.x =getX(cursor.line);
 						}
 					} else if (y + itemHeight > me.bottom) {
 						x = cursor.x = x + me.columnWidths[cursor.line] + labelOpts.padding;
